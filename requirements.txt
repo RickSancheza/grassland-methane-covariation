@@ -1,0 +1,16 @@
+# Python dependencies inferred from actual imports in found scripts.
+# Versions were NOT pinned by the original project and were NOT re-verified
+# in a clean environment for this archive. Do not invent version pins.
+
+numpy
+pandas
+rasterio
+matplotlib
+scipy
+scikit-learn
+shap
+statsmodels
+tqdm
+
+# Optional / used by audit scripts only
+# openpyxl   # pandas Excel IO in audit scripts
