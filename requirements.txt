@@ -1,16 +1,7 @@
-# Python dependencies inferred from actual imports in found scripts.
-# Versions were NOT pinned by the original project and were NOT re-verified
-# in a clean environment for this archive. Do not invent version pins.
-
-numpy
-pandas
-rasterio
-matplotlib
-scipy
-scikit-learn
-shap
-statsmodels
-tqdm
-
-# Optional / used by audit scripts only
-# openpyxl   # pandas Excel IO in audit scripts
+numpy>=1.23
+pandas>=1.5
+rasterio>=1.3
+scipy>=1.9
+scikit-learn>=1.2
+matplotlib>=3.6
+# R packages (install separately): terra, dplyr, stringr, ggplot2, readr

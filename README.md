@@ -1,102 +1,85 @@
-# Grassland Methane Analysis — Publication Code Archive
+# Grassland CH4 Analysis — GitHub Release
 
-Reproducible analysis code inventory for the GCB manuscript on global grassland
-CH4 emissions, atmospheric CH4 growth rate (GR / ΔGR), sectoral covariance
-contributions, response-type clustering, and Random Forest / SHAP interpretation.
+Reproducible analysis code for the global grassland methane study (GCB),
+organized by calculation stage. This package contains **analysis scripts and
+configuration only**. Large GeoTIFF inputs are not redistributed.
 
-**Archive root:** `F:\DOCTOR\graduating\test2\40\_publication_code`  
-**Source project:** `F:\DOCTOR\graduating\test2\` (analysis results under `40\`)  
-**Organized:** content-preserving copies only. Originals were not modified, moved,
-or deleted. No paper results were recalculated or overwritten.
+## Important provenance note
 
-## What this archive is (and is not)
+Scripts fall into three categories (see `REPRODUCIBILITY.md`):
 
-This archive contains **scripts found on disk** after a recursive content-based
-scan of `.py`, `.txt`, `.R`, `.r`, and `.ipynb` files (many analysis programs were
-saved as `.txt` and are converted here to `.py` / `.R` with identical bytes and
-recorded SHA256). It is **not** yet a fully closed, one-command reproducible
-pipeline: several manuscript-critical steps have **no original source code** on
-disk (see `MISSING_SCRIPTS.md`), and some surviving scripts implement an
-**older labeling scheme** that does not match the final union-fill results
-(see `VERSION_CONFLICTS.md`).
+1. **Recovered analysis logic** — formulas and parameters taken from project
+   source recovered on disk (English rewrite + relative paths; math unchanged).
+2. **Reconstructed (verified)** — missing original programs rebuilt from
+   method tables and result fingerprints, then checked against published
+   numbers (K-means, Mann–Whitney, soil PCA, Theil–Sen, RF/SHAP).
+3. **Intentionally absent** — steps with no original code and no verified
+   rebuild (e.g. XCH₄ → GR → ΔGR). They are documented, not invented.
 
-## Stage layout (paper calculation order)
+Reconstructed SHAP is **not** a bit-for-bit reproduction of the original
+mean |SHAP| values.
 
-| Folder | Stage | Content status |
-|--------|-------|----------------|
-| `00_inventory/` | Inventory, notes, hashes | Complete |
-| `01_grassland_classification_preprocessing/` | Grassland mask / 0.1° clip of emissions | Partial |
-| `02_ch4_growth_rate/` | XCH4 annual mean, GR, ΔGR (2004 baseline) | **Empty — code missing** |
-| `03_emission_change_sector/` | Sectoral emission composition (donuts) | Partial |
-| `04_regression_covariance/` | ΔEnteric–ΔGR regression; covariance / SC | Main scripts present |
-| `05_response_clustering/` | 1° aggregation, K-means, DBI, K=6 types | Partial (stats only) |
-| `06_explanatory_variables/` | Share/intensity/climate trends, soil PCA | **Empty — code missing** |
-| `07_statistical_tests_screening/` | Mann–Whitney, Spearman, screening | Old cluster 1/3 versions |
-| `08_random_forest_shap/` | RF + SHAP | Old cluster 1/3 version |
-| `09_figures/` | Main and supplementary figures | Embedded / ArcGIS only |
-| `90_validation/` | Audit and recalculation checks | Audit scripts only |
-| `99_legacy/` | Duplicates, diagnostics, non-final donuts | Present |
-
-## Data requirements (not redistributed)
-
-Scripts assume local raster stacks that are **not** included in this archive
-(large GeoTIFFs, original mission products). Typical inputs used by the found
-scripts:
-
-- `0_data/1_Delta_GR/YYYY.tif` — annual ΔGR (ppb yr⁻¹ relative to 2004)
-- `0_data/2_排放/<Sector>/YYYY.tif` — six sector emissions
-- `0_data/3_change/<Sector>/YYYY.tif` — six sector emission changes vs 2004
-- `0_data/4_均值/`, `0_data/5_趋势/`, `0_data/6_soil/` — means, trends, soil
-- `0_data/grasslandtype.tif`, `grassland.tif` — WWF-derived grassland types 1–6
-- `3_thirdpart/3_解释/0_解释变量/*.tif` — 0.1° explanatory variables
-- Cluster rasters under `3_thirdpart/2_聚类/` (K6, 1° aggregation, etc.)
-
-External source products referenced by methods/notes (code to build them is
-missing): WWF terrestrial ecoregions, JRC grassland mask, XCH₄, ERA5, MODIS GPP,
-SoilGrids.
-
-## How to run (once data paths are set)
-
-All found scripts use **absolute Windows paths** (`F:\...` or `G:\...`). Before
-running, edit the path block at the top of each script or set a project root
-variable. Do **not** treat those absolute paths as the public data locator.
-
-Suggested order for the steps that have code (see `RUN_ORDER.md` for evidence):
+## Layout
 
 ```text
-01  resample/clip emissions to grasslandtype
-03  plot_donut_groups_for_folder1_folder2.py
-04  signed_contribution_grid.py
-    covariance_by_grassland_type.R
-    linear_relationship_deltaGR_livestock.R
-05  [missing: 1° aggregation + K-means/DBI] then cluster_proportion_stats.R
-07  mannwhitney_u_test_cluster1_3.py
-    spearman_corr_filter_cluster1_3.py
-08  random_forest_shap_cluster1_3.py   # OLD labels only
-90  audit_* scripts (validation, not paper pipeline)
+config.py                 # paths and verified parameters
+raster_utils.py           # shared raster I/O helpers
+01_preprocess/            # grassland mask + grid alignment
+02_growth_rate/           # missing (documented)
+03_emissions/             # sector composition donuts
+04_covariance/            # SC grid + grassland-type covariance + regression
+05_clustering/            # K-means response types (verified parameters)
+06_explanatory/           # soil texture PCA + Theil-Sen trends
+07_statistics/            # Mann-Whitney U + FDR (cluster 2 vs 4)
+08_rf_shap/               # final 11-variable RF + MC-64 SHAP (reconstructed)
 ```
 
-Python dependencies: see `requirements.txt`.  
-R dependencies: `terra`, `dplyr`, `stringr`, `ggplot2`, `readr`, `tidyr`, optional `showtext`.
+## Environment
 
-## Provenance and checksums
+Python 3.10+ (see `requirements.txt`) and R 4.x with `terra`, `dplyr`,
+`stringr`, `ggplot2`, `readr`.
 
-- `00_inventory/CODE_INVENTORY.csv` — every candidate code/note file
-- `00_inventory/SHA256SUMS.csv` — source path, destination, SHA256, identity check
-- Converted `.txt` → `.py`/`.R` files are byte-identical to the originals
-  (`content_identical_to_source=YES` in the hash table)
+```bash
+export GRASSLAND_CH4_DATA_ROOT=/path/to/data
+export GRASSLAND_CH4_OUTPUT_ROOT=/path/to/results
+python -m compileall -q .
+```
 
-## Publication readiness (GitHub / Zenodo)
+Edit `config.py` if your data folder names differ from the defaults
+(`delta_gr`, `emissions`, `emission_changes`, `grasslandtype.tif`, …).
 
-**Not ready as a complete public reproducibility package yet.** Remaining blockers:
+## Suggested run order
 
-1. Missing scripts for stages 02, 05 (clustering core), 06, parts of 03/09.
-2. Final paper results use **union-fill K=6 cluster 2/4**; found analysis scripts
-   use **cluster 1/3** and older cluster raster paths.
-3. Hard-coded local absolute paths (`F:\`, `G:\`) must be replaced by relative
-   `data/` layout before release.
-4. Audit scripts must stay clearly separated from manuscript methods code
-   (they are already under `90_validation/`).
-5. Clarify and freeze the 40% enteric-share / grassland-fraction filter definition.
+```bash
+python 01_preprocess/align_and_mask_by_grassland.py
+python 03_emissions/sector_composition_donuts.py
+python 04_covariance/signed_contribution_grid.py
+Rscript 04_covariance/grassland_type_covariance.R
+Rscript 04_covariance/livestock_deltaGR_regression.R
+python 05_clustering/kmeans_response_types.py
+python 06_explanatory/soil_texture_pca.py
+python 06_explanatory/theilsen_trends.py
+python 07_statistics/mannwhitney_pos_vs_neg.py
+python 08_rf_shap/rf_shap_final_mc64.py
+```
 
-Do not push raw rasters or personal paths. See `.gitignore`.
+Provide a frozen model table at `DATA_ROOT/model_input_final.csv`
+(3095 cells; columns `lon, lat, cluster, response_binary` + factor columns)
+for stages 07–08.
+
+## Verified parameters (do not alter)
+
+| Step | Parameters |
+|------|------------|
+| SC | `SC_k = cov(dE_k,dGR)/sum\|cov\|*100`; min 5 valid years; ton→Tg ÷1e6 |
+| K-means | z-score (pop. SD), missing→0, k-means++/Lloyd, rs=42, n_init=50, max_iter=500 |
+| Labels | Enteric-positive = cluster **2**, Enteric-negative = cluster **4** |
+| Trends | Theil–Sen slope on year index |
+| PCA | Sand/Silt/Clay complete cases, z-score, SVD |
+| RF | 11 predictors; 1000 trees; min_leaf=3; min_split=6; max_features=sqrt; rs=42 |
+| SHAP | MC interventional permutation; 64 orderings; train-median baseline; class-1 probability |
+
+## License
+
+Add a `LICENSE` file when you choose one (e.g. MIT, CC-BY-4.0 for docs).
+No license is bundled in this package.

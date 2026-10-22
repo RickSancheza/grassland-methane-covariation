@@ -1,0 +1,32 @@
+# Data and results (not distributed)
+data/
+results/
+*.tif
+*.tiff
+*.ovr
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.mxd
+*.ai
+*.png
+*.pdf
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# OS
+.DS_Store
+Thumbs.db
